@@ -4,16 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mystery Mood — Tracker</title>
-
-  <!-- APP ICON -->
-  <link rel="icon" href="icon.png" type="image/png">
-  <!-- PWA MANIFEST -->
-  <link rel="manifest" href="manifest.json">
-  <!-- iPhone Home Screen Icon -->
-  <link rel="apple-touch-icon" href="icon.png">
-  <!-- Theme color -->
-  <meta name="theme-color" content="#FDEDE5">
-
+  <link rel="icon" href="icon.png" type="image/png" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  <meta name="theme-color" content="#FDEDE5" />
   <style>
     body {
       background: #FDEDE5;
@@ -68,176 +62,127 @@
       margin-bottom: 8px;
       border: 1px solid #e0d5c1;
     }
+    #quoteBox {
+      margin: 16px 0;
+      font-style: italic;
+      color: #6A4A3C;
+    }
   </style>
 </head>
-
-
 <body>
-
   <h1>♡ Mystery Mood — Tracker ♡</h1>
 
-  <div class="box">
-    <h3>Select your mood…</h3>
-
-    <select id="mood-select">
-      <option value="">Choose one…</option>
-      <option>Happy</option>
-      <option>Calm</option>
-      <option>Cozy</option>
-      <option>Excited</option>
-      <option>Motivated</option>
-      <option>Sad</option>
-      <option>Anxious</option>
-      <option>Stressed</option>
-      <option>Tired</option>
-      <option>Meh</option>
+  <div class="card">
+    <select id="moodSelect">
+      <option value="">Select your mood …</option>
+      <option value="Calm">☁️ Calm</option>
+      <option value="Happy">☀️ Happy</option>
+      <option value="Cozy">☕ Cozy</option>
+      <option value="Excited">✨ Excited</option>
+      <option value="Motivated">💪 Motivated</option>
+      <option value="Sad">🌧️ Sad</option>
+      <option value="Anxious">⚡ Anxious</option>
+      <option value="Stressed">😣 Stressed</option>
+      <option value="Tired">😴 Tired</option>
+      <option value="Meh">😐 Meh</option>
     </select>
 
     <textarea id="note" placeholder="Add a short note (optional)" rows="3"></textarea>
 
-    <button onclick="saveLog()">✨ Save Log ✨</button>
+    <button id="saveBtn">✨ Save Log ✨</button>
+    <button id="mysteryBtn">✨ Mystery Mood ✨</button>
 
-    <div class="quote-box" id="quoteBox">♡ Your daily wellness quote will appear here ♡</div>
+    <div id="quoteBox">♡ Your daily wellness quote will appear here ♡</div>
+  </div>
 
-    <hr style="margin: 20px 0;">
-
-    <h3>Recent Logs</h3>
-    <div id="logs">No mood logged yet ♡</div>
-
-    <div class="footer-buttons">
-      <button onclick="clearLogs()">Clear All Logs</button>
-      <button onclick="exportCSV()">Export CSV</button>
-    </div>
+  <div class="card">
+    <h2>Recent Logs</h2>
+    <ul id="logsList"></ul>
+    <button id="clearBtn">Clear All Logs</button>
+    <button id="exportBtn">Export CSV</button>
   </div>
 
   <script>
     const quotes = {
-      Happy: [
-        "Joy is your superpower today.",
-        "Happiness looks beautiful on you."
-      ],
-      Calm: [
-        "You are a soft wave in a loud world.",
-        "Peace surrounds you."
-      ],
-      Cozy: [
-        "Warm moments heal the heart.",
-        "This is a soft chapter of your story."
-      ],
-      Excited: [
-        "Your energy is electric today!",
-        "Good things are coming your way."
-      ],
-      Motivated: [
-        "Small steps create big change.",
-        "You are moving forward beautifully."
-      ],
-      Sad: [
-        "It’s okay to rest inside your feelings.",
-        "Your heart is allowed to be tender."
-      ],
-      Anxious: [
-        "Breathe—your mind is safe here.",
-        "You are stronger than the storm."
-      ],
-      Stressed: [
-        "You are carrying more than you should. Be gentle with yourself.",
-        "You deserve rest."
-      ],
-      Tired: [
-        "Your body is asking for softness.",
-        "Rest is productive."
-      ],
-      Meh: [
-        "Neutral days are still progress days.",
-        "Even stillness is growth."
-      ]
+      Calm: ["You are a sea of peace.", "Let your heart float like a feather."],
+      Happy: ["Joy blooms from within.", "You are a ray of sunshine."],
+      Cozy: ["Warm moments heal the heart.", "This is a soft chapter of your story."],
+      Excited: ["Your spark lights up the world.", "Good things are coming your way."],
+      Motivated: ["Small steps create big change.", "You are moving forward beautifully."],
+      Sad: ["It’s okay to feel the rain.", "Healing comes in waves."],
+      Anxious: ["Breathe—your mind is safe here.", "You are stronger than the storm."],
+      Stressed: ["You deserve rest.", "Be gentle with yourself."],
+      Tired: ["Rest is productive.", "Your body is asking for softness."],
+      Meh: ["Neutral days are still progress days.", "Even stillness is growth."]
     };
 
-    const logsDiv = document.getElementById("logs");
-    const quoteBox = document.getElementById("quoteBox");
-
-    function saveLog() {
-      const mood = document.getElementById("mood-select").value;
-      const note = document.getElementById("note").value;
-
-      if (!mood) {
-        alert("Please select a mood!");
-        return;
-      }
-
-      const quoteChoices = quotes[mood] || ["You are doing your best today."];
-      const randomQuote = quoteChoices[Math.floor(Math.random() * quoteChoices.length)];
-      quoteBox.innerText = randomQuote;
-
-      const log = {
-        mood,
-        note,
-        quote: randomQuote,
-        date: new Date().toLocaleString(),
-      };
-
-      let logs = JSON.parse(localStorage.getItem("moodLogs") || "[]");
-      logs.unshift(log);
-      localStorage.setItem("moodLogs", JSON.stringify(logs));
-
-      loadLogs();
-      document.getElementById("note").value = "";
-      document.getElementById("mood-select").value = "";
-    }
+    const storageKey = "mysteryMoodLogs";
 
     function loadLogs() {
-      let logs = JSON.parse(localStorage.getItem("moodLogs") || "[]");
+      const raw = localStorage.getItem(storageKey);
+      const logs = raw ? JSON.parse(raw) : [];
+      const list = document.getElementById("logsList");
+      list.innerHTML = "";
+      logs.forEach(l => {
+        const li = document.createElement("li");
+        li.innerHTML = `<strong>${l.mood}</strong> — ${l.date}<br><em>"${l.quote}"</em>${l.note ? `<br>Note: ${l.note}` : ""}`;
+        list.appendChild(li);
+      });
+    }
 
-      if (logs.length === 0) {
-        logsDiv.innerHTML = "No mood logged yet ♡";
-        return;
+    function saveLog() {
+      const mood = document.getElementById("moodSelect").value;
+      const note = document.getElementById("note").value;
+      if (!mood) {
+        return alert("Please select a mood!");
       }
-
-      logsDiv.innerHTML = logs
-        .map(
-          (l) => `
-        <div class="log-item">
-          <strong>${l.mood}</strong> — <em>${l.date}</em><br />
-          "${l.quote}"<br />
-          ${l.note ? l.note : "<i>No note</i>"}
-        </div>
-      `
-        )
-        .join("");
+      const possible = quotes[mood];
+      const quote = possible[Math.floor(Math.random() * possible.length)];
+      const log = { mood, note, quote, date: new Date().toLocaleString() };
+      const logs = JSON.parse(localStorage.getItem(storageKey) || "[]");
+      logs.unshift(log);
+      localStorage.setItem(storageKey, JSON.stringify(logs));
+      document.getElementById("quoteBox").innerText = quote;
+      document.getElementById("note").value = "";
+      document.getElementById("moodSelect").value = "";
+      loadLogs();
     }
 
     function clearLogs() {
       if (confirm("Clear all logs?")) {
-        localStorage.removeItem("moodLogs");
+        localStorage.removeItem(storageKey);
         loadLogs();
       }
     }
 
     function exportCSV() {
-      let logs = JSON.parse(localStorage.getItem("moodLogs") || "[]");
-
-      if (logs.length === 0) {
-        alert("No logs to export yet!");
-        return;
+      const logs = JSON.parse(localStorage.getItem(storageKey) || "[]");
+      if (!logs.length) {
+        return alert("No logs to export yet!");
       }
-
-      let csv = "Mood,Quote,Note,Date\n";
-      logs.forEach((l) => {
-        csv += `"${l.mood}","${l.quote.replace(/"/g, "'")}","${l.note.replace(/"/g, "'")}","${l.date}"\n`;
-      });
-
+      const rows = [["Mood", "Quote", "Note", "Date"], ...logs.map(l => [l.mood, l.quote, l.note, l.date])];
+      let csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\\n");
       const blob = new Blob([csv], { type: "text/csv" });
       const url = URL.createObjectURL(blob);
-
       const a = document.createElement("a");
       a.href = url;
       a.download = "mood_logs.csv";
       a.click();
+      URL.revokeObjectURL(url);
     }
+
+    document.getElementById("saveBtn").onclick = saveLog;
+    document.getElementById("mysteryBtn").onclick = () => {
+      const moods = Object.keys(quotes);
+      const random = moods[Math.floor(Math.random() * moods.length)];
+      document.getElementById("moodSelect").value = random;
+      document.getElementById("quoteBox").innerText = quotes[random][Math.floor(Math.random() * quotes[random].length)];
+    };
+  
+    document.getElementById("clearBtn").onclick = clearLogs;
+    document.getElementById("exportBtn").onclick = exportCSV;
 
     loadLogs();
   </script>
-
 </body>
 </html>
