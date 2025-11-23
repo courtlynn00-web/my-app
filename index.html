@@ -1,57 +1,283 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Mystery Mood App</title>
-  <style>
-    body {
-      background: #f6f1eb;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 40px;
-      color: #4a3f35;
-    }
-    .box {
-      background: white;
-      padding: 30px;
-      border-radius: 20px;
-      max-width: 350px;
-      margin: auto;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    button {
-      padding: 12px 20px;
-      border: none;
-      background: #d8c3a5;
-      border-radius: 10px;
-      font-size: 18px;
-      cursor: pointer;
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mystery Mood — Peachy Tracker</title>
+
+<style>
+  :root{
+    --peach:#FAD7C8;
+    --peach-deep:#FFB59E;
+    --bg:#FFF7F2;
+    --brown:#6A4A3C;
+    --card:#FFFFFF;
+    --muted:#8b7b72;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif}
+  body{margin:0; background:linear-gradient(180deg,var(--bg),#fff); color:var(--brown); padding:28px; display:flex; justify-content:center;}
+  .wrap{max-width:760px; width:100%}
+  header{text-align:center;margin-bottom:10px}
+  .logo{width:84px;height:84px;border-radius:18px;background:var(--peach-deep);display:inline-flex;align-items:center;justify-content:center;font-size:34px;color:white;box-shadow:0 8px 20px rgba(0,0,0,0.06)}
+  h1{margin:12px 0 6px;font-size:28px}
+  p.tag{margin:0;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:1fr 380px;gap:18px;margin-top:18px}
+  @media(max-width:900px){ .grid{grid-template-columns:1fr;}}
+  .card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:0 8px 30px rgba(0,0,0,0.06)}
+  .big{padding:22px}
+  .mood-preview{padding:18px;border-radius:12px;background:linear-gradient(180deg,var(--peach) 0%, #fff 100%);text-align:center;font-size:20px;font-weight:600}
+  .mood-btn{display:block;margin:14px auto 0;background:var(--peach-deep);border:none;color:white;padding:12px 18px;border-radius:40px;font-size:16px;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+  .mood-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+  .mood-chip{background:white;border-radius:12px;padding:8px 12px;border:2px solid var(--peach);cursor:pointer}
+  .pet{font-size:86px;margin-top:12px}
+  .small{font-size:14px;color:var(--muted)}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+  .btn{background:transparent;border:2px solid var(--peach);padding:8px 10px;border-radius:10px;cursor:pointer}
+  .btn.primary{background:var(--peach-deep);color:white;border:none}
+  .logs{max-height:300px;overflow:auto;margin-top:8px;border-radius:10px;padding:8px;border:1px dashed #eee}
+  .log-row{display:flex;justify-content:space-between;gap:8px;padding:8px;border-bottom:1px solid #f5f0ec}
+  .log-left{display:flex;gap:8px;align-items:center}
+  .mood-dot{width:36px;height:36px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;background:var(--peach)}
+  .note{font-size:13px;color:var(--muted)}
+  .footer{margin-top:14px;text-align:center;color:var(--muted);font-size:13px}
+  .form-row{display:flex;gap:8px;align-items:center;margin-top:10px}
+  input[type="text"]{flex:1;padding:8px;border-radius:8px;border:1px solid #eee}
+  .hidden{display:none}
+  .hint{font-size:13px;color:var(--muted);text-align:center;margin-top:8px}
+</style>
 </head>
 <body>
-  <div class="box">
-    <h1>Mystery Mood</h1>
-    <p>Tap the button to get your mystery mood!</p>
-    <button onclick="generateMood()">Reveal Mood</button>
-    <h2 id="mood"></h2>
+  <div class="wrap">
+    <header>
+      <div class="logo">♡</div>
+      <h1>Mystery Mood — Tracker</h1>
+      <p class="tag">Tap the button to reveal a mood, log how you feel, and collect sweet quotes ✨</p>
+    </header>
+
+    <div class="grid">
+      <!-- LEFT: Main -->
+      <div class="card big">
+        <div class="mood-preview" id="todayMood">No mood logged yet ♡</div>
+        <div style="text-align:center">
+          <button id="mysteryBtn" class="mood-btn">✨ Mystery Mood ✨</button>
+        </div>
+
+        <div class="mood-row" id="moodChips"></div>
+
+        <div style="text-align:center" class="pet" id="petArea">🐾</div>
+
+        <div class="form-row">
+          <input id="noteInput" type="text" placeholder="Add a short note (optional)"/>
+          <button id="saveBtn" class="btn primary">Save Log</button>
+        </div>
+
+        <div class="controls">
+          <button id="viewLogsBtn" class="btn">View Logs</button>
+          <button id="exportBtn" class="btn">Export CSV</button>
+          <button id="clearAllBtn" class="btn">Clear All Logs</button>
+        </div>
+
+        <div id="quoteBox" class="hint"></div>
+      </div>
+
+      <!-- RIGHT: Logs / Info -->
+      <div class="card">
+        <h3 style="margin-top:0">Recent Logs</h3>
+        <div class="logs" id="logs"></div>
+
+        <div class="footer">
+          <div>Made with ♡ — Peachy Kawaii</div>
+          <div style="margin-top:6px" class="small">Data stored only on this device. Export anytime.</div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <script>
-    const moods = [
-      "✨ Calm & Cozy",
-      "🔥 Fierce & Unstoppable",
-      "🌙 Quiet & Dreamy",
-      "🌈 Bright & Hopeful",
-      "🌪️ Chaotic — but in a cute way",
-      "☕ Soft & Sleepy",
-      "💡 Inspired Genius"
-    ];
+<script>
+/* -------- DATA -------- */
+const MOODS = [
+  {id:'calm', label:'Calm', emoji:'☁️', color:'#FFF9F6', quotes:[
+    "Breathe slow. You’re doing fine.",
+    "Softly, gently, you are enough.",
+    "A calm heart finds better answers."
+  ]},
+  {id:'happy', label:'Happy', emoji:'☀️', color:'#FFF7E8', quotes:[
+    "Collect tiny joys — they add up.",
+    "Smile, it's written in your bones.",
+    "Good days stack like quiet sunbeams."
+  ]},
+  {id:'cozy', label:'Cozy', emoji:'☕', color:'#FFF3EA', quotes:[
+    "Wrap yourself in warmth today.",
+    "Small comforts make big differences.",
+    "Cozy moments are gentle victories."
+  ]},
+  {id:'excited', label:'Excited', emoji:'✨', color:'#FFF9F0', quotes:[
+    "Energy like this makes new ideas bloom.",
+    "Ride the spark — then rest when it’s done.",
+    "Today carries the buzz of possibility."
+  ]},
+  {id:'sad', label:'Sad', emoji:'🌧️', color:'#F3F5FA', quotes:[
+    "It's okay to feel what you feel.",
+    "Softly: this too will shift.",
+    "Grief and growth sometimes share the same room."
+  ]},
+  {id:'anxious', label:'Anxious', emoji:'⚡', color:'#FFF6F4', quotes:[
+    "Name one small thing you can do next.",
+    "You’re allowed to take five breaths.",
+    "You are here. That is enough for now."
+  ]}
+];
 
-    function generateMood() {
-      const pick = moods[Math.floor(Math.random() * moods.length)];
-      document.getElementById("mood").innerText = pick;
-    }
-  </script>
+const PETS = ["ღ","つ","❀","🐻","🌸","🐥"]; // cute emoji pets
+
+/* -------- STATE & STORAGE -------- */
+const STORAGE_KEY = 'mystery_mood_logs_v1';
+
+function loadLogs(){
+  try{
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  }catch(e){ return []; }
+}
+function saveLogs(logs){ localStorage.setItem(STORAGE_KEY, JSON.stringify(logs)); }
+
+/* -------- UI HELPERS -------- */
+function $(id){ return document.getElementById(id); }
+
+function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+function renderMoodChips(){
+  const el = $('moodChips'); el.innerHTML='';
+  MOODS.forEach(m=>{
+    const btn = document.createElement('button');
+    btn.className='mood-chip';
+    btn.innerHTML = `${m.emoji} ${m.label}`;
+    btn.onclick = ()=> selectMood(m.id);
+    el.appendChild(btn);
+  });
+}
+
+let currentMood = null;
+function selectMood(id){
+  const m = MOODS.find(x=>x.id===id);
+  if(!m) return;
+  currentMood = m;
+  updatePreview(m);
+  showQuoteFor(m);
+  showPet();
+}
+
+function updatePreview(m){
+  $('todayMood').textContent = `${m.emoji}  ${m.label}`;
+  $('todayMood').style.background = `linear-gradient(180deg, ${m.color}, #fff)`;
+}
+
+function showQuoteFor(m){
+  const q = pickRandom(m.quotes || []);
+  $('quoteBox').textContent = q ? `“${q}”` : '';
+}
+
+function showPet(){
+  $('petArea').textContent = pickRandom(PETS);
+}
+
+/* -------- MYSTERY BUTTON -------- */
+function mysteryMood(){
+  const m = pickRandom(MOODS);
+  selectMood(m.id);
+}
+
+/* -------- LOGGING -------- */
+function addLog(note = ''){
+  if(!currentMood){ alert('Pick a mood (or press Mystery Mood) first.'); return; }
+  const logs = loadLogs();
+  const entry = {
+    id: Date.now().toString(),
+    moodId: currentMood.id,
+    moodLabel: currentMood.label,
+    emoji: currentMood.emoji,
+    note: (note||'').slice(0,200),
+    time: new Date().toISOString()
+  };
+  logs.unshift(entry);
+  saveLogs(logs);
+  renderLogs();
+  $('noteInput').value = '';
+  // gentle confirmation
+  const old = $('mysteryBtn').textContent;
+  $('mysteryBtn').textContent = 'Saved ✓';
+  setTimeout(()=> $('mysteryBtn').textContent = old, 900);
+}
+
+function renderLogs(){
+  const container = $('logs'); container.innerHTML='';
+  const logs = loadLogs();
+  if(logs.length===0){ container.innerHTML='<div class="small" style="text-align:center;padding:12px;color:#aaa">No logs yet — save your mood to build a history.</div>'; return; }
+  logs.forEach(l=>{
+    const row = document.createElement('div'); row.className='log-row';
+    const left = document.createElement('div'); left.className='log-left';
+    const dot = document.createElement('div'); dot.className='mood-dot'; dot.textContent = l.emoji;
+    const meta = document.createElement('div');
+    const time = new Date(l.time).toLocaleString();
+    meta.innerHTML = `<div style="font-weight:600">${l.moodLabel}</div><div class="note">${l.note||'<span style="opacity:0.7">no note</span>'}</div><div class="small" style="margin-top:6px;color:#b3a79c">${time}</div>`;
+    left.appendChild(dot); left.appendChild(meta);
+    const right = document.createElement('div');
+    const del = document.createElement('button'); del.className='btn'; del.textContent='Delete'; del.onclick = ()=> deleteLog(l.id);
+    right.appendChild(del);
+    row.appendChild(left); row.appendChild(right);
+    container.appendChild(row);
+  });
+}
+
+function deleteLog(id){
+  let logs = loadLogs();
+  logs = logs.filter(l=>l.id!==id);
+  saveLogs(logs);
+  renderLogs();
+}
+
+/* -------- EXPORT -------- */
+function exportCSV(){
+  const logs = loadLogs();
+  if(!logs.length){ alert('No logs to export.'); return; }
+  const rows = [['time','mood','emoji','note']];
+  logs.forEach(l=> rows.push([l.time, l.moodLabel, l.emoji, (l.note||'').replace(/\n/g,' ')]));
+  const csv = rows.map(r=> r.map(c=> `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'mood_logs.csv'; document.body.appendChild(a); a.click();
+  a.remove(); URL.revokeObjectURL(url);
+}
+
+/* -------- CLEAR ALL -------- */
+function clearAll(){
+  if(!confirm('Delete ALL logs? This cannot be undone.')) return;
+  saveLogs([]);
+  renderLogs();
+}
+
+/* -------- INIT -------- */
+function init(){
+  renderMoodChips();
+  // attach handlers
+  $('mysteryBtn').onclick = mysteryMood;
+  $('saveBtn').onclick = ()=> addLog($('noteInput').value);
+  $('viewLogsBtn').onclick = ()=> { window.scrollTo({top:document.body.scrollHeight, behavior:'smooth'}); };
+  $('exportBtn').onclick = exportCSV;
+  $('clearAllBtn').onclick = clearAll;
+
+  // load last logged mood if exists
+  const logs = loadLogs();
+  if(logs.length){
+    const last = logs[0];
+    const m = MOODS.find(x=>x.id===last.moodId);
+    if(m){ currentMood = m; updatePreview(m); showQuoteFor(m); $('petArea').textContent = pickRandom(PETS); }
+  }
+  renderLogs();
+}
+
+// run
+document.addEventListener('DOMContentLoaded', init);
+</script>
 </body>
 </html>
