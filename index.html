@@ -1,191 +1,184 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mystery Mood Tracker</title>
   <style>
     body {
-      background: #fff7f2;
-      font-family: "Helvetica Neue", Arial, sans-serif;
+      background: #FDEDE5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #6A4A3C;
+      margin: 0;
+      padding: 20px;
       text-align: center;
-      padding: 25px;
-      color: #5b4740;
     }
-
     h1 {
-      font-size: 32px;
-      margin-bottom: 8px;
-      color: #e89cae;
+      margin-bottom: 10px;
     }
-
-    .box {
-      background: #ffffff;
-      padding: 25px;
+    .card {
+      background: white;
       border-radius: 20px;
-      max-width: 420px;
-      margin: auto;
+      padding: 20px;
+      max-width: 360px;
+      margin: 20px auto;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-
     button {
-      padding: 14px 22px;
+      background: #F8B9C4;
       border: none;
-      background: #f7c8d0;
+      padding: 12px 24px;
       border-radius: 12px;
-      font-size: 18px;
+      font-size: 16px;
       cursor: pointer;
-      margin: 8px 0;
-      color: #5b4740;
-    }
-
-    button:hover {
-      background: #f4b4bf;
-    }
-
-    input, textarea {
-      width: 90%;
-      padding: 10px;
       margin-top: 10px;
+    }
+    button:active {
+      transform: scale(0.95);
+    }
+    select, textarea, input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin: 10px 0;
       border-radius: 10px;
-      border: 1px solid #d3c4bb;
+      border: 1px solid #e0d5c1;
+      font-size: 14px;
     }
-
-    .log-box {
-      background: #fff;
-      margin-top: 15px;
-      padding: 15px;
-      border-radius: 15px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    #logsList {
       text-align: left;
+      max-width: 360px;
+      margin: 20px auto;
+      padding: 0;
+      list-style: none;
     }
-
-    .quote {
-      font-style: italic;
-      color: #b7868c;
-      margin-top: 10px;
+    #logsList li {
+      background: #FFF7F2;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      border: 1px solid #e0d5c1;
     }
   </style>
 </head>
 <body>
-
-  <div class="box">
-    <h1>♡ Mystery Mood — Tracker</h1>
-    <p>Tap the button to reveal a mood, log how you feel, and collect sweet quotes ✨</p>
-
-    <button onclick="revealMood()">✨ Mystery Mood ✨</button>
-
-    <h2 id="mood"></h2>
-    <p class="quote" id="quote"></p>
-
-    <textarea id="note" placeholder="Add a short note (optional)..."></textarea>
-    <button onclick="saveLog()">Save Log</button>
-    <button onclick="viewLogs()">View Logs</button>
-    <button onclick="exportCSV()">Export CSV</button>
-    <button onclick="clearLogs()">Clear All Logs</button>
+  <h1>♡ Mystery Mood — Tracker ♡</h1>
+  <div class="card">
+    <p id="currentMood">No mood logged yet ♡</p>
+    <select id="moodSelect">
+      <option value="">Select your mood …</option>
+      <option value="Calm">☁️ Calm</option>
+      <option value="Happy">☀️ Happy</option>
+      <option value="Cozy">☕ Cozy</option>
+      <option value="Excited">✨ Excited</option>
+      <option value="Sad">🌧️ Sad</option>
+      <option value="Anxious">⚡ Anxious</option>
+    </select>
+    <textarea id="note" placeholder="Add a short note (optional)"></textarea>
+    <button id="saveBtn">Save Log</button>
+    <button id="mysteryBtn">✨ Mystery Mood ✨</button>
   </div>
 
-  <h2>Recent Logs</h2>
-  <div id="logList"></div>
+  <div class="card">
+    <h2>Recent Logs</h2>
+    <ul id="logsList"></ul>
+    <button id="clearBtn">Clear All Logs</button>
+    <button id="exportBtn">Export CSV</button>
+  </div>
 
   <script>
-    const moods = {
-      "Calm": "“Peace begins with a deep breath.”",
-      "Happy": "“Joy is the quietest form of gratitude.”",
-      "Cozy": "“You are safest in your own softness.”",
-      "Excited": "“Something wonderful is about to happen.”",
-      "Sad": "“It’s okay to feel it. You’re growing.”",
-      "Anxious": "“You have survived 100% of your hardest days.”",
-      "Dreamy": "“Your imagination is your superpower.”"
+    // Data structure
+    const quotes = {
+      "Calm": ["You are a sea of peace.", "Let your heart float like a feather."],
+      "Happy": ["Joy blooms from within.", "You are a ray of sunshine."],
+      "Cozy": ["Soft moments make the heart warm.", "Embrace the stillness."],
+      "Excited": ["Adventure is calling you!", "Your spark lights up the world."],
+      "Sad": ["It’s okay to feel the rain.", "Healing comes in waves."],
+      "Anxious": ["Breathe in hope, breathe out fear.", "You are stronger than your worries."]
     };
 
-    function revealMood() {
-      const keys = Object.keys(moods);
-      const mood = keys[Math.floor(Math.random() * keys.length)];
+    const storageKey = "mysteryMoodLogs";
 
-      document.getElementById("mood").innerText = mood;
-      document.getElementById("quote").innerText = moods[mood];
+    // Load logs
+    function loadLogs() {
+      const raw = localStorage.getItem(storageKey);
+      return raw ? JSON.parse(raw) : [];
     }
 
-    function saveLog() {
-      const mood = document.getElementById("mood").innerText;
-      if (!mood) {
-        alert("Reveal a mood first!");
-        return;
-      }
+    // Save logs
+    function saveLogs(logs) {
+      localStorage.setItem(storageKey, JSON.stringify(logs));
+    }
 
-      const note = document.getElementById("note").value;
-      const logs = JSON.parse(localStorage.getItem("moodLogs") || "[]");
+    function addLog(mood, note) {
+      const logs = loadLogs();
+      const time = new Date().toLocaleString();
+      const quoteArr = quotes[mood] || ["You are a mood of your own."];
+      const quote = quoteArr[Math.floor(Math.random() * quoteArr.length)];
+      logs.unshift({ mood, note, time, quote });
+      saveLogs(logs);
+      return logs;
+    }
 
-      logs.unshift({
-        mood: mood,
-        note: note,
-        quote: moods[mood],
-        date: new Date().toLocaleString()
+    function renderLogs() {
+      const logs = loadLogs();
+      const list = document.getElementById("logsList");
+      list.innerHTML = "";
+      logs.forEach(log => {
+        const li = document.createElement("li");
+        li.innerHTML = `<strong>${log.mood}</strong> — ${log.time}<br><em>"${log.quote}"</em>` + (log.note ? `<br>Note: ${log.note}` : "");
+        list.appendChild(li);
       });
-
-      localStorage.setItem("moodLogs", JSON.stringify(logs));
-      document.getElementById("note").value = "";
-      viewLogs();
-    }
-
-    function viewLogs() {
-      const logs = JSON.parse(localStorage.getItem("moodLogs") || "[]");
-      const container = document.getElementById("logList");
-
-      container.innerHTML = logs.length === 0 
-        ? "<p>No logs yet — save your mood to build a history.</p>"
-        : "";
-
-      logs.forEach((log, index) => {
-        container.innerHTML += `
-          <div class="log-box">
-            <strong>${log.date}</strong><br>
-            Mood: ${log.mood}<br>
-            "${log.quote}"<br>
-            Note: ${log.note || "(none)"}<br>
-            <button onclick="deleteLog(${index})">Delete</button>
-          </div>
-        `;
-      });
-    }
-
-    function deleteLog(index) {
-      const logs = JSON.parse(localStorage.getItem("moodLogs") || "[]");
-      logs.splice(index, 1);
-      localStorage.setItem("moodLogs", JSON.stringify(logs));
-      viewLogs();
     }
 
     function exportCSV() {
-      const logs = JSON.parse(localStorage.getItem("moodLogs") || "[]");
-      if (logs.length === 0) {
-        alert("No logs to export.");
-        return;
-      }
-
-      let csv = "Date,Mood,Quote,Note\n";
-      logs.forEach(l => {
-        csv += `"${l.date}","${l.mood}","${l.quote}","${l.note}"\n`;
-      });
-
-      const file = new Blob([csv], { type: "text/csv" });
-      const url = URL.createObjectURL(file);
-
+      const logs = loadLogs();
+      if (!logs.length) return alert("No logs to export.");
+      // convert to CSV
+      const rows = [
+        ["Mood","Time","Quote","Note"],
+        ...logs.map(l => [l.mood, l.time, `"${l.quote}"`, `"${l.note || ""}"`])
+      ];
+      const csvContent = rows.map(e => e.join(",")).join("\\n");
+      const blob = new Blob([csvContent], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "mood_logs.csv";
+      a.download = "mystery_mood_logs.csv";
       a.click();
+      URL.revokeObjectURL(url);
     }
 
-    function clearLogs() {
+    // UI Logic
+    document.getElementById("saveBtn").onclick = () => {
+      const mood = document.getElementById("moodSelect").value;
+      const note = document.getElementById("note").value;
+      if (!mood) return alert("Please select a mood.");
+      addLog(mood, note);
+      renderLogs();
+      document.getElementById("currentMood").innerText = `Today’s Mood: ${mood}`;
+      document.getElementById("note").value = "";
+    };
+
+    document.getElementById("mysteryBtn").onclick = () => {
+      const moodSelect = document.getElementById("moodSelect");
+      const randomMood = Object.keys(quotes)[Math.floor(Math.random() * Object.keys(quotes).length)];
+      moodSelect.value = randomMood;
+      document.getElementById("currentMood").innerText = `Mystery Mood: ${randomMood}`;
+    };
+
+    document.getElementById("clearBtn").onclick = () => {
       if (confirm("Are you sure you want to clear all logs?")) {
-        localStorage.removeItem("moodLogs");
-        viewLogs();
+        localStorage.removeItem(storageKey);
+        renderLogs();
       }
-    }
+    };
 
-    viewLogs();
+    document.getElementById("exportBtn").onclick = () => {
+      exportCSV();
+    };
+
+    // Initially render logs
+    renderLogs();
   </script>
-
 </body>
 </html>
