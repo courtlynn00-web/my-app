@@ -1,102 +1,148 @@
-<!-- ========= MENTAL HEALTH FEATURES ========= -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mindful Moments</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
 
-<style>
-  .mh-section {
-    max-width: 600px;
-    margin: 30px auto;
-    background: #ffffffd5;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    font-family: Arial, sans-serif;
-  }
-  .mh-section h2 {
-    margin-bottom: 10px;
-  }
-  .mh-btn {
-    padding: 10px 15px;
-    border: none;
-    background: #4a90e2;
-    color: white;
-    border-radius: 10px;
-    cursor: pointer;
-    margin-top: 10px;
-  }
-  .mh-btn:hover {
-    background: #3577c4;
-  }
-  #gratitude-list li {
-    margin: 5px 0;
-  }
-  #mood-emoji span {
-    font-size: 35px;
-    cursor: pointer;
-    padding: 5px;
-  }
-  #mood-emoji span:hover {
-    transform: scale(1.2);
-  }
-</style>
+    h1 {
+      margin-top: 20px;
+      font-size: 2.5rem;
+      text-align: center;
+    }
 
-<!-- ========= FEATURE 1: MOOD CHECK-IN ========= -->
-<div class="mh-section">
-  <h2>🌤️ Mood Check-In</h2>
-  <p>Select how you're feeling today:</p>
-  <div id="mood-emoji">
-    <span onclick="saveMood('😄')">😄</span>
-    <span onclick="saveMood('🙂')">🙂</span>
-    <span onclick="saveMood('😐')">😐</span>
-    <span onclick="saveMood('😔')">😔</span>
-    <span onclick="saveMood('😢')">😢</span>
+    .quote-box {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 500px;
+      text-align: center;
+      margin: 20px 0;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    button {
+      padding: 12px 20px;
+      background: #ff7eb3;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      color: white;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #ff558a;
+    }
+
+    .section {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 600px;
+      width: 100%;
+      margin: 20px 0;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      font-size: 1rem;
+      resize: none;
+    }
+
+    .mood-buttons button {
+      background: #6c63ff;
+      margin: 5px;
+    }
+
+    .mood-buttons button:hover {
+      background: #4b43d1;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Mindful Moments</h1>
+
+  <!-- Daily Quote Generator -->
+  <div class="quote-box">
+    <h2>Daily Motivation</h2>
+    <p id="quote">Click the button to get your quote of the day 💕</p>
+    <button onclick="newQuote()">New Quote</button>
   </div>
-  <p id="mood-output" style="margin-top:10px; font-weight:bold;"></p>
-</div>
 
-<script>
-  function saveMood(mood) {
-    document.getElementById("mood-output").innerText =
-      "You checked in as: " + mood + " — thanks for sharing ❤️";
-  }
-</script>
+  <!-- Mood Tracker -->
+  <div class="section">
+    <h2>How Are You Feeling Today?</h2>
+    <div class="mood-buttons">
+      <button onclick="trackMood('😊 Happy')">😊 Happy</button>
+      <button onclick="trackMood('😔 Sad')">😔 Sad</button>
+      <button onclick="trackMood('😤 Stressed')">😤 Stressed</button>
+      <button onclick="trackMood('😴 Tired')">😴 Tired</button>
+      <button onclick="trackMood('🤩 Motivated')">🤩 Motivated</button>
+    </div>
+    <p id="mood-log" style="margin-top:10px; font-weight:bold;"></p>
+  </div>
 
-<!-- ========= FEATURE 2: GRATITUDE JOURNAL ========= -->
-<div class="mh-section">
-  <h2>🌱 Daily Gratitude</h2>
-  <p>Write one thing you're grateful for:</p>
-  <input id="gratitude-input" type="text" placeholder="I'm grateful for..." style="width:100%; padding:10px; border-radius:10px; border:1px solid #ccc;">
-  <button class="mh-btn" onclick="addGratitude()">Add</button>
+  <!-- Journal Section -->
+  <div class="section">
+    <h2>Daily Journal</h2>
+    <textarea id="journal" placeholder="Write your thoughts here..."></textarea>
+    <button onclick="saveJournal()">Save Journal Entry</button>
+    <p id="journal-status" style="margin-top:10px;"></p>
+  </div>
 
-  <ul id="gratitude-list"></ul>
-</div>
+  <script>
+    // Quotes
+    const quotes = [
+      "You are stronger than you think.",
+      "One step at a time. You've got this.",
+      "Breathe. Everything will be okay.",
+      "Progress is still progress, no matter how small.",
+      "You deserve peace and happiness.",
+      "Be kind to yourself today.",
+      "You are enough just as you are.",
+      "Your feelings are valid."
+    ];
 
-<script>
-  function addGratitude() {
-    const input = document.getElementById("gratitude-input");
-    if (input.value.trim() === "") return;
+    function newQuote() {
+      const q = quotes[Math.floor(Math.random() * quotes.length)];
+      document.getElementById('quote').innerText = q;
+    }
 
-    const li = document.createElement("li");
-    li.textContent = "• " + input.value;
-    document.getElementById("gratitude-list").appendChild(li);
+    // Mood tracker
+    function trackMood(mood) {
+      document.getElementById('mood-log').innerText = `You logged: ${mood}`;
+    }
 
-    input.value = "";
-  }
-</script>
+    // Journal
+    function saveJournal() {
+      const entry = document.getElementById('journal').value;
+      if (!entry.trim()) {
+        document.getElementById('journal-status').innerText = "Please write something first.";
+        return;
+      }
+      localStorage.setItem('journalEntry', entry);
+      document.getElementById('journal-status').innerText = "Journal saved!";
+    }
+  </script>
 
-<!-- ========= FEATURE 3: BREATHING EXERCISE ========= -->
-<div class="mh-section">
-  <h2>🧘 Guided Breathing</h2>
-  <p id="breathing-text">Click start to begin a calming breath cycle.</p>
-  <button class="mh-btn" onclick="startBreathing()">Start</button>
-</div>
-
-<script>
-  function startBreathing() {
-    const text = document.getElementById("breathing-text");
-    text.innerText = "Inhale…";
-    setTimeout(() => text.innerText = "Hold…", 4000);
-    setTimeout(() => text.innerText = "Exhale…", 7000);
-    setTimeout(() => text.innerText = "Inhale…", 11000);
-  }
-</script>
-
-<!-- ========= END MENTAL HEALTH FEATURES ========= -->
+</body>
+</html>
