@@ -5,23 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mystery Mood Tracker</title>
 
-  <!-- APP ICON -->
+  <!-- App Icon -->
   <link rel="icon" href="icon.png" type="image/png">
-
-  <!-- PWA MANIFEST -->
-  <link rel="manifest" href="manifest.json">
-
-  <!-- iPhone Home Screen Icon -->
   <link rel="apple-touch-icon" href="icon.png">
 
-  <!-- Theme color -->
+  <!-- Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Theme Color -->
   <meta name="theme-color" content="#FDEDE5" />
-</head>
-
-  <title>Mystery Mood — Tracker</title>
-
-  <!-- App Icon -->
-  <link rel="icon" href="icon.png" type="image/png" />
 
   <style>
     body {
@@ -75,6 +67,15 @@
       text-align: left;
     }
 
+    .quote-box {
+      background: #fff0ff;
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 10px;
+      font-style: italic;
+      color: #7a4bad;
+    }
+
     .footer-buttons {
       margin-top: 20px;
     }
@@ -111,6 +112,8 @@
 
     <button onclick="saveLog()">✨ Save Log ✨</button>
 
+    <div class="quote-box" id="quoteBox">♡ Your daily wellness quote will appear here ♡</div>
+
     <hr style="margin: 20px 0;">
 
     <h3>Recent Logs</h3>
@@ -123,7 +126,51 @@
   </div>
 
   <script>
+    const quotes = {
+      Happy: [
+        "Joy is your superpower today.",
+        "Happiness looks beautiful on you."
+      ],
+      Calm: [
+        "You are a soft wave in a loud world.",
+        "Peace surrounds you."
+      ],
+      Cozy: [
+        "Warm moments heal the heart.",
+        "This is a soft chapter of your story."
+      ],
+      Excited: [
+        "Your energy is electric today!",
+        "Good things are coming your way."
+      ],
+      Motivated: [
+        "Small steps create big change.",
+        "You are moving forward beautifully."
+      ],
+      Sad: [
+        "It’s okay to rest inside your feelings.",
+        "Your heart is allowed to be tender."
+      ],
+      Anxious: [
+        "Breathe—your mind is safe here.",
+        "You are stronger than the storm."
+      ],
+      Stressed: [
+        "You are carrying more than you should. Be gentle with yourself.",
+        "You deserve rest."
+      ],
+      Tired: [
+        "Your body is asking for softness.",
+        "Rest is productive."
+      ],
+      Meh: [
+        "Neutral days are still progress days.",
+        "Even stillness is growth."
+      ]
+    };
+
     const logsDiv = document.getElementById("logs");
+    const quoteBox = document.getElementById("quoteBox");
 
     function saveLog() {
       const mood = document.getElementById("mood-select").value;
@@ -134,9 +181,14 @@
         return;
       }
 
+      const quoteChoices = quotes[mood] || ["You are doing your best today."];
+      const randomQuote = quoteChoices[Math.floor(Math.random() * quoteChoices.length)];
+      quoteBox.innerText = randomQuote;
+
       const log = {
         mood,
         note,
+        quote: randomQuote,
         date: new Date().toLocaleString(),
       };
 
@@ -162,6 +214,7 @@
           (l) => `
         <div class="log-item">
           <strong>${l.mood}</strong> — <em>${l.date}</em><br />
+          "${l.quote}"<br />
           ${l.note ? l.note : "<i>No note</i>"}
         </div>
       `
@@ -184,9 +237,9 @@
         return;
       }
 
-      let csv = "Mood,Note,Date\n";
+      let csv = "Mood,Quote,Note,Date\n";
       logs.forEach((l) => {
-        csv += `"${l.mood}","${l.note.replace(/"/g, "'")}","${l.date}"\n`;
+        csv += `"${l.mood}","${l.quote.replace(/"/g, "'")}","${l.note.replace(/"/g, "'")}","${l.date}"\n`;
       });
 
       const blob = new Blob([csv], { type: "text/csv" });
@@ -203,5 +256,3 @@
 
 </body>
 </html>
-
-      
