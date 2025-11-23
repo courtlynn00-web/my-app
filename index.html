@@ -144,5 +144,125 @@
     }
   </script>
 
+  <!-- Breathing Exercise -->
+  <div class="section">
+    <h2>Breathing Exercise</h2>
+    <p>Follow the circle to breathe in and out.</p>
+    <div id="breathing-circle" style="width:120px; height:120px; border-radius:50%; background:#a8edea; margin:20px auto; animation: breathe 6s infinite;"></div>
+  </div>
+
+  <!-- Grounding Exercise -->
+  <div class="section">
+    <h2>5-4-3-2-1 Grounding Technique</h2>
+    <button onclick="startGrounding()">Start Grounding</button>
+    <p id="grounding-step" style="margin-top: 10px;"></p>
+  </div>
+
+  <!-- Gratitude Prompt -->
+  <div class="section">
+    <h2>Gratitude Prompt</h2>
+    <p id="gratitude-text">Click for a gratitude prompt.</p>
+    <button onclick="newGratitude()">New Prompt</button>
+  </div>
+
+  <!-- Relaxation Sounds -->
+  <div class="section">
+    <h2>Relaxation Sounds</h2>
+    <button onclick="playSound('rain')">Rain 🌧️</button>
+    <button onclick="playSound('waves')">Ocean Waves 🌊</button>
+    <button onclick="playSound('forest')">Forest 🌲</button>
+    <audio id="audio-player"></audio>
+  </div>
+
+  <!-- Affirmations Carousel -->
+  <div class="section">
+    <h2>Daily Affirmations</h2>
+    <p id="affirmation">You are worthy of good things.</p>
+    <button onclick="newAffirmation()">Next</button>
+  </div>
+
+  <!-- Daily Goals Checklist -->
+  <div class="section">
+    <h2>Daily Goals</h2>
+    <label><input type="checkbox" onclick="saveGoals()"> Drink Water</label><br>
+    <label><input type="checkbox" onclick="saveGoals()"> Go for a Walk</label><br>
+    <label><input type="checkbox" onclick="saveGoals()"> Meditate 5 Minutes</label><br>
+    <label><input type="checkbox" onclick="saveGoals()"> Write Journal Entry</label><br>
+    <p id="goals-status" style="margin-top: 10px;"></p>
+  </div>
+
+  <style>
+    @keyframes breathe {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.4); }
+      100% { transform: scale(1); }
+    }
+  </style>
+
+  <script>
+    // Grounding steps
+    const groundingSteps = [
+      "Name 5 things you can SEE",
+      "Name 4 things you can TOUCH",
+      "Name 3 things you can HEAR",
+      "Name 2 things you can SMELL",
+      "Name 1 thing you can TASTE"
+    ];
+    let groundingIndex = 0;
+
+    function startGrounding() {
+      if (groundingIndex >= groundingSteps.length) groundingIndex = 0;
+      document.getElementById('grounding-step').innerText = groundingSteps[groundingIndex];
+      groundingIndex++;
+    }
+
+    // Gratitude prompts
+    const gratitudePrompts = [
+      "What made you smile today?",
+      "Name one thing you're grateful for right now.",
+      "Who is someone you're thankful for?",
+      "What is something you often take for granted but appreciate?"
+    ];
+
+    function newGratitude() {
+      const g = gratitudePrompts[Math.floor(Math.random() * gratitudePrompts.length)];
+      document.getElementById('gratitude-text').innerText = g;
+    }
+
+    // Relaxation sounds
+    function playSound(type) {
+      const audio = document.getElementById('audio-player');
+      const sources = {
+        rain: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_7ba468e2f2.mp3',
+        waves: 'https://cdn.pixabay.com/download/audio/2021/08/08/audio_75e84cade2.mp3',
+        forest: 'https://cdn.pixabay.com/download/audio/2021/09/08/audio_forest.mp3'
+      };
+      audio.src = sources[type];
+      audio.play();
+    }
+
+    // Affirmations
+    const affirmations = [
+      "You are enough.",
+      "You are capable of amazing things.",
+      "You are growing every day.",
+      "You deserve rest and peace.",
+      "You are strong, even on hard days."
+    ];
+
+    function newAffirmation() {
+      const a = affirmations[Math.floor(Math.random() * affirmations.length)];
+      document.getElementById('affirmation').innerText = a;
+    }
+
+    // Daily goals
+    function saveGoals() {
+      const checkboxes = document.querySelectorAll('input[type=checkbox]');
+      let completed = 0;
+      checkboxes.forEach(cb => { if (cb.checked) completed++; });
+      document.getElementById('goals-status').innerText = `${completed} / ${checkboxes.length} goals completed today.`;
+    }
+  </script>
+
 </body>
 </html>
