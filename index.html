@@ -1,192 +1,192 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-   <link rel="icon" href="icon.png" type="image/png">
-<link rel="apple-touch-icon" href="icon.png">
-<link rel="manifest" href="manifest.json">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mystery Mood — Tracker</title>
 
-    <title>Mystery Mood Tracker</title>
+  <!-- App Icon -->
+  <link rel="icon" href="icon.png" type="image/png" />
 
-    <!-- Favicon -->
-    <link rel="icon" href="icon.png" type="image/png" />
+  <style>
+    body {
+      font-family: "Arial Rounded MT", Arial, sans-serif;
+      background: #fdf7ff;
+      text-align: center;
+      padding: 20px;
+      color: #333;
+    }
 
-    <!-- Manifest -->
-    <link rel="manifest" href="manifest.json" />
+    h1 {
+      font-size: 28px;
+      margin-bottom: 14px;
+      color: #a85ae6;
+    }
 
-    <style>
-      body {
-        background: #FDEDE5;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        color: #6A4A3C;
-        margin: 0;
-        padding: 20px;
-        text-align: center;
-      }
-      h1 {
-        margin-bottom: 10px;
-      }
-      .card {
-        background: white;
-        border-radius: 20px;
-        padding: 20px;
-        max-width: 360px;
-        margin: 20px auto;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      }
-      button {
-        background: #F8B9C4;
-        border: none;
-        padding: 12px 24px;
-        border-radius: 12px;
-        font-size: 16px;
-        cursor: pointer;
-        margin-top: 10px;
-      }
-      button:active {
-        transform: scale(0.95);
-      }
-      select, textarea {
-        width: 100%;
-        padding: 8px;
-        margin: 10px 0;
-        border-radius: 10px;
-        border: 1px solid #e0d5c1;
-        font-size: 14px;
-      }
-      #logsList {
-        text-align: left;
-        max-width: 360px;
-        margin: 20px auto;
-        padding: 0;
-        list-style: none;
-      }
-      #logsList li {
-        background: #FFF7F2;
-        padding: 10px;
-        border-radius: 10px;
-        margin-bottom: 8px;
-        border: 1px solid #e0d5c1;
-      }
-    </style>
-  </head>
+    .box {
+      background: white;
+      padding: 18px;
+      border-radius: 14px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      max-width: 480px;
+      margin: auto;
+    }
 
-  <body>
-    <h1>♡ Mystery Mood — Tracker ♡</h1>
+    select, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      font-size: 16px;
+    }
 
-    <div class="card">
-      <p id="currentMood">No mood logged yet ♡</p>
+    button {
+      background: #b37bff;
+      color: white;
+      cursor: pointer;
+      border: none;
+    }
 
-      <select id="moodSelect">
-        <option value="">Select your mood …</option>
-        <option value="Calm">☁️ Calm</option>
-        <option value="Happy">☀️ Happy</option>
-        <option value="Cozy">☕ Cozy</option>
-        <option value="Excited">✨ Excited</option>
-        <option value="Sad">🌧️ Sad</option>
-        <option value="Anxious">⚡ Anxious</option>
-      </select>
+    button:hover {
+      background: #a567f1;
+    }
 
-      <textarea id="note" placeholder="Add a short note (optional)"></textarea>
+    .log-item {
+      background: #faf2ff;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 10px;
+      text-align: left;
+    }
 
-      <button id="saveBtn">Save Log</button>
-      <button id="mysteryBtn">✨ Mystery Mood ✨</button>
+    .footer-buttons {
+      margin-top: 20px;
+    }
+
+    .footer-buttons button {
+      width: 48%;
+      display: inline-block;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>♡ Mystery Mood — Tracker ♡</h1>
+
+  <div class="box">
+    <h3>Select your mood…</h3>
+
+    <select id="mood-select">
+      <option value="">Choose one…</option>
+      <option>Happy</option>
+      <option>Calm</option>
+      <option>Cozy</option>
+      <option>Excited</option>
+      <option>Motivated</option>
+      <option>Sad</option>
+      <option>Anxious</option>
+      <option>Stressed</option>
+      <option>Tired</option>
+      <option>Meh</option>
+    </select>
+
+    <textarea id="note" placeholder="Add a short note (optional)" rows="3"></textarea>
+
+    <button onclick="saveLog()">✨ Save Log ✨</button>
+
+    <hr style="margin: 20px 0;">
+
+    <h3>Recent Logs</h3>
+    <div id="logs">No mood logged yet ♡</div>
+
+    <div class="footer-buttons">
+      <button onclick="clearLogs()">Clear All Logs</button>
+      <button onclick="exportCSV()">Export CSV</button>
     </div>
+  </div>
 
-    <div class="card">
-      <h2>Recent Logs</h2>
-      <ul id="logsList"></ul>
-      <button id="clearBtn">Clear All Logs</button>
-      <button id="exportBtn">Export CSV</button>
-    </div>
+  <script>
+    const logsDiv = document.getElementById("logs");
 
-    <script>
-      const quotes = {
-        "Calm": ["You are a sea of peace.", "Let your heart float like a feather."],
-        "Happy": ["Joy blooms from within.", "You are a ray of sunshine."],
-        "Cozy": ["Soft moments make the heart warm.", "Embrace the stillness."],
-        "Excited": ["Adventure is calling you!", "Your spark lights up the world."],
-        "Sad": ["It’s okay to feel the rain.", "Healing comes in waves."],
-        "Anxious": ["Breathe in hope, breathe out fear.", "You are stronger than your worries."]
+    function saveLog() {
+      const mood = document.getElementById("mood-select").value;
+      const note = document.getElementById("note").value;
+
+      if (!mood) {
+        alert("Please select a mood!");
+        return;
+      }
+
+      const log = {
+        mood,
+        note,
+        date: new Date().toLocaleString(),
       };
 
-      const storageKey = "mysteryMoodLogs";
+      let logs = JSON.parse(localStorage.getItem("moodLogs") || "[]");
+      logs.unshift(log);
+      localStorage.setItem("moodLogs", JSON.stringify(logs));
 
-      function loadLogs() {
-        const raw = localStorage.getItem(storageKey);
-        return raw ? JSON.parse(raw) : [];
+      loadLogs();
+      document.getElementById("note").value = "";
+      document.getElementById("mood-select").value = "";
+    }
+
+    function loadLogs() {
+      let logs = JSON.parse(localStorage.getItem("moodLogs") || "[]");
+
+      if (logs.length === 0) {
+        logsDiv.innerHTML = "No mood logged yet ♡";
+        return;
       }
 
-      function saveLogs(logs) {
-        localStorage.setItem(storageKey, JSON.stringify(logs));
+      logsDiv.innerHTML = logs
+        .map(
+          (l) => `
+        <div class="log-item">
+          <strong>${l.mood}</strong> — <em>${l.date}</em><br />
+          ${l.note ? l.note : "<i>No note</i>"}
+        </div>
+      `
+        )
+        .join("");
+    }
+
+    function clearLogs() {
+      if (confirm("Clear all logs?")) {
+        localStorage.removeItem("moodLogs");
+        loadLogs();
+      }
+    }
+
+    function exportCSV() {
+      let logs = JSON.parse(localStorage.getItem("moodLogs") || "[]");
+
+      if (logs.length === 0) {
+        alert("No logs to export yet!");
+        return;
       }
 
-      function addLog(mood, note) {
-        const logs = loadLogs();
-        const time = new Date().toLocaleString();
-        const quoteArr = quotes[mood] || ["You are a mood of your own."];
-        const quote = quoteArr[Math.floor(Math.random() * quoteArr.length)];
-        logs.unshift({ mood, note, time, quote });
-        saveLogs(logs);
-        return logs;
-      }
+      let csv = "Mood,Note,Date\n";
+      logs.forEach((l) => {
+        csv += `"${l.mood}","${l.note.replace(/"/g, "'")}","${l.date}"\n`;
+      });
 
-      function renderLogs() {
-        const logs = loadLogs();
-        const list = document.getElementById("logsList");
-        list.innerHTML = "";
-        logs.forEach(log => {
-          const li = document.createElement("li");
-          li.innerHTML = `<strong>${log.mood}</strong> — ${log.time}<br><em>"${log.quote}"</em>` + (log.note ? `<br>Note: ${log.note}` : "");
-          list.appendChild(li);
-        });
-      }
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
 
-      function exportCSV() {
-        const logs = loadLogs();
-        if (!logs.length) return alert("No logs to export.");
-        const rows = [
-          ["Mood","Time","Quote","Note"],
-          ...logs.map(l => [l.mood, l.time, `"${l.quote}"`, `"${l.note || ""}"`])
-        ];
-        const csvContent = rows.map(e => e.join(",")).join("\n");
-        const blob = new Blob([csvContent], { type: "text/csv" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "mystery_mood_logs.csv";
-        a.click();
-        URL.revokeObjectURL(url);
-      }
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "mood_logs.csv";
+      a.click();
+    }
 
-      document.getElementById("saveBtn").onclick = () => {
-        const mood = document.getElementById("moodSelect").value;
-        const note = document.getElementById("note").value;
-        if (!mood) return alert("Please select a mood.");
-        addLog(mood, note);
-        renderLogs();
-        document.getElementById("currentMood").innerText = `Today’s Mood: ${mood}`;
-        document.getElementById("note").value = "";
-      };
+    loadLogs();
+  </script>
 
-      document.getElementById("mysteryBtn").onclick = () => {
-        const moods = Object.keys(quotes);
-        const randomMood = moods[Math.floor(Math.random() * moods.length)];
-        document.getElementById("moodSelect").value = randomMood;
-        document.getElementById("currentMood").innerText = `Mystery Mood: ${randomMood}`;
-      };
-
-      document.getElementById("clearBtn").onclick = () => {
-        if (confirm("Are you sure you want to clear all logs?")) {
-          localStorage.removeItem(storageKey);
-          renderLogs();
-        }
-      };
-
-      document.getElementById("exportBtn").onclick = () => exportCSV();
-
-      renderLogs();
-    </script>
-  </body>
+</body>
 </html>
+
+      
